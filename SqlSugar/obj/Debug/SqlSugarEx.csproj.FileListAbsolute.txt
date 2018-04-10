@@ -1,0 +1,9 @@
+E:\GitMytest\Demo.SqlSugar\SqlSugar\bin\Debug\SqlSugar.exe.config
+E:\GitMytest\Demo.SqlSugar\SqlSugar\bin\Debug\SqlSugar.exe
+E:\GitMytest\Demo.SqlSugar\SqlSugar\bin\Debug\SqlSugar.pdb
+E:\GitMytest\Demo.SqlSugar\SqlSugar\bin\Debug\SqlSugar.dll
+E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugar.Properties.Resources.resources
+E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugarEx.csproj.GenerateResource.Cache
+E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugarEx.csproj.CoreCompileInputs.cache
+E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugar.exe
+E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugar.pdb
