@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SqlSugarEx
 {
@@ -33,15 +30,45 @@ namespace SqlSugarEx
                 System.Diagnostics.Debug.Write(sql);
             };
 #endif
-
+            _db = SqlClient.GetInstance();
+        }
+        public SqlSugarContext()
+        {
+            _db = SqlClient.GetInstance();
         }
 
         #region 单表操作
+
+        #region 查询
+
+        /// <summary>
+        /// 获取实体数量
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="predicate">查询表达式</param>
+        /// <returns></returns>
         public int Count<T>(Expression<Func<T, bool>> predicate) where T : class, new()
         {
             return _db.Queryable<T>().Where(predicate).Count();
         }
-
+        /// <summary>
+        /// 按住键查询单个实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="pkValue">主键</param>
+        /// <returns></returns>
+        T Get<T>(object pkValue) where T : class, new()
+        {
+            return _db.Queryable<T>().Single(null);
+        }
+        /// <summary>
+        /// 查询单个实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <typeparam name="TValue">主键的值</typeparam>
+        /// <param name="pk">主键</param>
+        /// <param name="value">主键值</param>
+        /// <returns></returns>
         public T Get<T, TValue>(Expression<Func<T, object>> pk, TValue value)
             where T : class, new()
         where TValue : struct
@@ -50,52 +77,82 @@ namespace SqlSugarEx
             SugarParameter parameter = new SugarParameter(filed, value);
             return _db.Queryable<T>().Where(string.Concat(filed, "=@", filed), parameter).Single();
         }
-
-        public T Get<T>(Expression<Func<T, bool>> predicate, params Sorting<T>[] sorts) where T : class, new()
+        /// <summary>
+        /// 根据表达式获取单个实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="predicate">查询表达式</param>
+        /// <param name="orderBy">排序字段</param>
+        /// <returns></returns>
+        public T Get<T>(Expression<Func<T, bool>> predicate, params Sorting<T>[] orderBy) where T : class, new()
         {
             ISugarQueryable<T> query = _db.Queryable<T>();
-            if (sorts != null)
+            if (orderBy != null)
             {
-                foreach (var sort in sorts)
+                foreach (var sort in orderBy)
                 {
                     query = query.OrderBy(sort.Parameter, sort.Direction == SortType.Asc ? OrderByType.Asc : OrderByType.Desc);
                 }
             }
             return query.Single(predicate);
         }
-
-        public IEnumerable<T> GetList<T>(Expression<Func<T, bool>> predicate, params Sorting<T>[] sorts) where T : class, new()
+        /// <summary>
+        /// 根据表达式获取实体集合
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="predicate">查询表达式</param>
+        /// <param name="orderBy">排序字段</param>
+        /// <returns></returns>
+        public IEnumerable<T> GetList<T>(Expression<Func<T, bool>> predicate, params Sorting<T>[] orderBy) where T : class, new()
         {
             ISugarQueryable<T> query = _db.Queryable<T>().Where(predicate);
-            if (sorts != null)
+            if (orderBy != null)
             {
-                foreach (var sort in sorts)
+                foreach (var sort in orderBy)
                 {
                     query = query.OrderBy(sort.Parameter, sort.Direction == SortType.Asc ? OrderByType.Asc : OrderByType.Desc);
                 }
             }
             return query.ToList();
         }
-
-        public IEnumerable<T> GetPageList<T>(Expression<Func<T, bool>> predicate, int page, int resultsPerPage, Sorting<T>[] sorts, ref int total) where T : class, new()
+        /// <summary>
+        /// 获取分页数据
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="predicate">查询表达式</param>
+        /// <param name="pageIndex">页数</param>
+        /// <param name="pageSize">每页条数</param>
+        /// <param name="orderBy">排序字段</param>
+        /// <param name="total">总数</param>
+        /// <returns></returns>
+        public IEnumerable<T> GetPageList<T>(Expression<Func<T, bool>> predicate, int pageIndex, int pageSize, Sorting<T>[] orderBy, ref int total) where T : class, new()
         {
             ISugarQueryable<T> query = _db.Queryable<T>().Where(predicate);
-            if (sorts != null)
+            if (orderBy != null)
             {
-                foreach (var sort in sorts)
+                foreach (var sort in orderBy)
                 {
                     query = query.OrderBy(sort.Parameter, sort.Direction == SortType.Asc ? OrderByType.Asc : OrderByType.Desc);
                 }
             }
-            return query.ToPageList(page, resultsPerPage, ref total);
+            return query.ToPageList(pageIndex, pageSize, ref total);
         }
+        #endregion
 
-        public long Insert<T>(T entity, Expression<Func<T, object>> pk = null, bool isReturnIdentity = true) where T : class, new()
+        #region 新增
+        /// <summary>
+        /// 插入一个实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="entity">实体内容</param>
+        /// <param name="ignorePk">要忽略的主键</param>
+        /// <param name="isIdentity">是否返回生成的ID</param>
+        public long Insert<T>(T entity, Expression<Func<T, object>> ignorePk = null, bool isReturnIdentity = true) where T : class, new()
         {
             IInsertable<T> insertObj = _db.Insertable(entity);
-            if (pk != null)
+            if (ignorePk != null)
             {
-                insertObj = insertObj.IgnoreColumns(pk);
+                insertObj = insertObj.IgnoreColumns(ignorePk);
             }
             if (isReturnIdentity)
             {
@@ -103,22 +160,111 @@ namespace SqlSugarEx
             }
             return insertObj.ExecuteCommand();
         }
-        public long Insert<T>(T[] entitys, Expression<Func<T, object>> pk = null) where T : class, new()
+        /// <summary>
+        /// 批量新增实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="entitys">实体集合，List<T></param>
+        /// <param name="ignorePk">要忽略的主键</param>
+        /// <returns>最大id</returns>
+        public long Insert<T>(T[] entitys, Expression<Func<T, object>> ignorePk = null) where T : class, new()
         {
             IInsertable<T> insertObj = _db.Insertable(entitys);
-            if (pk != null)
+            if (ignorePk != null)
             {
-                insertObj = insertObj.IgnoreColumns(pk);
+                insertObj = insertObj.IgnoreColumns(ignorePk);
             }
             var t = insertObj.ExecuteReturnBigIdentityAsync();
             t.Wait();
             return t.Result;
         }
+        #endregion
 
-        public int Update<T>(T entity, Expression<Func<T, object>> fileds) where T : class, new()
+        #region 删除
+        /// <summary>
+        /// 逻辑删除(状态修改为删除)
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="entity">实体内容</param>
+        /// <param name="fields">要修改的字段</param>
+        /// <param name="where">修改条件</param>
+        /// <returns>受影响行数</returns>
+        public int Delete<T>(T entity, Expression<Func<T, object>> fields, Expression<Func<T, bool>> where = null) where T : class, new()
         {
-            return _db.Updateable(entity).UpdateColumns(fileds).ExecuteCommand();
+            var upd = _db.Updateable(entity).UpdateColumns(fields);
+            if (where != null)
+            {
+                upd.Where(where);
+            }
+            return upd.ExecuteCommand();
         }
+        /// <summary>
+        /// 按条件删除(物理删除)
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="entity">实体内容</param>
+        /// <param name="where">删除条件</param>
+        /// <returns>受影响行数</returns>
+        public int Delete<T>(T entity, Expression<Func<T, bool>> where) where T : class, new()
+        {
+            return _db.Deleteable(entity).Where(where).ExecuteCommand();
+        }
+        /// <summary>
+        /// 按主键批量删除(物理删除)
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="primaryKeys">主键集合</param>
+        /// <returns>受影响行数</returns>
+        public int Delete<T>(int[] primaryKeys) where T : class, new()
+        {
+            return _db.Deleteable<T>(primaryKeys).ExecuteCommand();
+        }
+        /// <summary>
+        /// 按住键删除(物理删除)
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="primaryKey">主键值</param>
+        /// <returns>受影响行数</returns>
+        public int Delete<T>(int primaryKey) where T : class, new()
+        {
+            return _db.Deleteable<T>(primaryKey).ExecuteCommand();
+        }
+        #endregion
+
+        #region 更新
+        /// <summary>
+        /// 更新实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="entity"></param>
+        /// <param name="fileds">需要更新的字段</param>
+        /// <param name="where">条件</param>
+        /// <returns>受影响行数</returns>
+        public int Update<T>(T entity, Expression<Func<T, object>> fileds = null
+            , Expression<Func<T, bool>> where = null) where T : class, new()
+        {
+            IUpdateable<T> upd = _db.Updateable(entity);
+            if (fileds != null)
+            {
+                upd.UpdateColumns(fileds);
+            }
+            if (where != null)
+            {
+                upd.Where(where);
+            }
+            return upd.ExecuteCommand();
+        }
+        /// <summary>
+        /// 更新实体
+        /// </summary>
+        /// <typeparam name="T">表实体</typeparam>
+        /// <param name="entity">实体内容</param>
+        /// <returns>受影响行数</returns>
+        public int Update<T>(T entity) where T : class, new()
+        {
+            return _db.Updateable(entity).ExecuteCommand();
+        }
+        #endregion
 
         #endregion
 

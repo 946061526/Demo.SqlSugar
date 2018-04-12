@@ -17,6 +17,21 @@ namespace SqlSugarEx
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new Form1());
+
+            testSugar();
+        }
+
+        static void testSugar()
+        {
+
+            SqlSugarContext _context = new SqlSugarContext();
+
+            GroupInfo entity = new GroupInfo()
+            {
+                GroupName = "group1",
+                Remark = "test1"
+            };
+            _context.Insert(entity, it => new { it.Id });
         }
     }
 }

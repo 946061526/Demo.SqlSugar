@@ -51,9 +51,11 @@
     <Compile Include="DbContent\DbType.cs" />
     <Compile Include="DbContent\IDbContext.cs" />
     <Compile Include="DbContent\Sorting.cs" />
+    <Compile Include="DbContent\SqlClient.cs" />
     <Compile Include="DbContent\SqlSugarContext.cs" />
     <Compile Include="Expression\ExpressionUtils.cs" />
     <Compile Include="Expression\ReflectionHelper.cs" />
+    <Compile Include="GroupInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

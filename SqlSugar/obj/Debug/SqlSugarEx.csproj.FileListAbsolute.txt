@@ -7,3 +7,4 @@ E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugarEx.csproj.GenerateResource
 E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugarEx.csproj.CoreCompileInputs.cache
 E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugar.exe
 E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugar.pdb
+E:\GitMytest\Demo.SqlSugar\SqlSugar\obj\Debug\SqlSugarEx.csprojResolveAssemblyReference.cache
